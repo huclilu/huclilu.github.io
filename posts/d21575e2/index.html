@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="一.I创杯比赛官网漏洞挖掘1.外围打点针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一样。非原生），敏感目录扫描等等。 2.逐个测试前期的信息收集完毕，着手针对系统进行测试，findsomething发现了几个带参数id的url，尝试进行SQL注入。  单引号测试一下直接拦截，不断fuzz看看到底是哪个参数被拦截了……然后由于站">
+    <meta name="description" content="一.I创杯比赛官网漏洞挖掘1.外围打点针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一致），敏感目录扫描等等。 2.逐个测试前期的信息收集完毕，着手针对系统进行测试，findsomething发现了几个带参数id的url，尝试进行SQL注入。  单引号测试一下直接拦截，不断fuzz看看到底是哪个参数被拦截了……然后由于站点的wa">
 <meta property="og:type" content="article">
 <meta property="og:title" content="I创杯比赛官网漏洞挖掘">
 <meta property="og:url" content="https://huclilu.github.io/posts/d21575e2/index.html">
 <meta property="og:site_name" content="Ace|安全之道、就在其中">
-<meta property="og:description" content="一.I创杯比赛官网漏洞挖掘1.外围打点针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一样。非原生），敏感目录扫描等等。 2.逐个测试前期的信息收集完毕，着手针对系统进行测试，findsomething发现了几个带参数id的url，尝试进行SQL注入。  单引号测试一下直接拦截，不断fuzz看看到底是哪个参数被拦截了……然后由于站">
+<meta property="og:description" content="一.I创杯比赛官网漏洞挖掘1.外围打点针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一致），敏感目录扫描等等。 2.逐个测试前期的信息收集完毕，着手针对系统进行测试，findsomething发现了几个带参数id的url，尝试进行SQL注入。  单引号测试一下直接拦截，不断fuzz看看到底是哪个参数被拦截了……然后由于站点的wa">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20220823183801895.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20220823184109448.png">
@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20220823191742221.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20220823192412621.png">
 <meta property="article:published_time" content="2022-08-27T11:52:06.000Z">
-<meta property="article:modified_time" content="2022-08-27T15:25:06.222Z">
+<meta property="article:modified_time" content="2022-08-27T15:26:14.548Z">
 <meta property="article:author" content="老A">
 <meta property="article:tag" content="漏洞挖掘">
 <meta name="twitter:card" content="summary">
@@ -211,7 +211,7 @@
       
         <time datetime="2022-08-27T11:52:06.000Z" itemprop="datePublished">2022-08-27</time>
         
-        (Updated: <time datetime="2022-08-27T15:25:06.222Z" itemprop="dateModified">2022-08-27</time>)
+        (Updated: <time datetime="2022-08-27T15:26:14.548Z" itemprop="dateModified">2022-08-27</time>)
         
       
     </div>
@@ -231,7 +231,7 @@
   
 
   <div class="content conterDiy" itemprop="articleBody">
-    <h1 id="一-I创杯比赛官网漏洞挖掘"><a href="#一-I创杯比赛官网漏洞挖掘" class="headerlink" title="一.I创杯比赛官网漏洞挖掘"></a>一.I创杯比赛官网漏洞挖掘</h1><h2 id="1-外围打点"><a href="#1-外围打点" class="headerlink" title="1.外围打点"></a>1.外围打点</h2><p>针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一样。非原生），敏感目录扫描等等。</p>
+    <h1 id="一-I创杯比赛官网漏洞挖掘"><a href="#一-I创杯比赛官网漏洞挖掘" class="headerlink" title="一.I创杯比赛官网漏洞挖掘"></a>一.I创杯比赛官网漏洞挖掘</h1><h2 id="1-外围打点"><a href="#1-外围打点" class="headerlink" title="1.外围打点"></a>1.外围打点</h2><p>针对该系统进行信息收集，子域名，端口开放，脚本语言，服务器类型，中间件类型，包括官网里的公众号（经验证，公众号和网站一致），敏感目录扫描等等。</p>
 <h2 id="2-逐个测试"><a href="#2-逐个测试" class="headerlink" title="2.逐个测试"></a>2.逐个测试</h2><p>前期的信息收集完毕，着手针对系统进行测试，findsomething发现了几个带参数id的url，尝试进行SQL注入。</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20220823183801895.png" alt="1"></p>
 <p>单引号测试一下直接拦截，不断fuzz看看到底是哪个参数被拦截了……然后由于站点的waf以及防护策略就此作罢。</p>
