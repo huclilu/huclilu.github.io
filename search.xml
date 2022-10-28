@@ -4,6 +4,44 @@
   
     
     <entry>
+      <title>0day漏洞挖掘案例</title>
+      <link href="/posts/a83ff7dd/"/>
+      <url>/posts/a83ff7dd/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 漏洞挖掘 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Vulnhub之social-network打靶思路</title>
+      <link href="/posts/c3d4ff92/"/>
+      <url>/posts/c3d4ff92/</url>
+      
+        <content type="html"><![CDATA[<h1 id="一-Vulnhub之social-network打靶思路"><a href="#一-Vulnhub之social-network打靶思路" class="headerlink" title="一.Vulnhub之social network打靶思路"></a>一.Vulnhub之social network打靶思路</h1><h2 id="1-打靶思路总结"><a href="#1-打靶思路总结" class="headerlink" title="1.打靶思路总结"></a>1.打靶思路总结</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">信息收集-反弹shell-socks代理-提权</span><br><span class="line">* 攻击机：Kali，本机（windows10）</span><br><span class="line">* 目标靶机：social network</span><br></pre></td></tr></table></figure><h2 id="2-信息收集"><a href="#2-信息收集" class="headerlink" title="2.信息收集"></a>2.信息收集</h2><p>在virtualbox装好靶机之后，直接使用kscan扫c段：</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024093117899.png" alt="image-20221024093117899"><br>开放22和5000端口，一个ssh，一个web，直接访问web服务，发现一个输入框<br><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024093522188.png" alt="image-20221024093522188"><br>dirsearch扫一下目录，发现存在admin目录</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024093725196.png" alt="image-20221024093725196"></p><h2 id="3-反弹shell"><a href="#3-反弹shell" class="headerlink" title="3.反弹shell"></a>3.反弹shell</h2><p>看到python的flash框架以及提示输出内容到exec，想到可能是python反弹shell</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024094040360.png" alt="image-20221024094040360"></p><p>填入IP以及要监听的端口，直接复制反弹shell的语句到输入框中</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024094522505.png" alt="image-20221024094522505"><br>反弹shell成功：<br><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024094630347.png" alt="image-20221024094630347"><br>???直接就是root权限？提权操作用不上？这是中等难度的靶机？想到这里，感觉事情并不简单</p><h2 id="4-Docker逃逸"><a href="#4-Docker逃逸" class="headerlink" title="4.Docker逃逸"></a>4.Docker逃逸</h2><p>ls列以下文件，发现一个Dokerfile文件，估计是在docker容器中了，搞不好就是docker逃逸<br><strong>判断是否身处docker容器中的两个方法：</strong></p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024095954228.png" alt="image-20221024095954228"></p><ul><li>查看根目录有无 .&#x2F;dockerenv文件ls &#x2F;.dockerenv或者find .</li><li>查看当前系统进程的cgroup信息   cat &#x2F;proc&#x2F;1&#x2F;cgroup</li></ul><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20221024100129780.png" alt="image-20221024100129780"></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> Vulnhub </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Vulnhub之jangow打靶思路</title>
       <link href="/posts/6da7162c/"/>
       <url>/posts/6da7162c/</url>
