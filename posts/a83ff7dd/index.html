@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="一.思路1绕过登陆（无效）-发现接口-JS审计-爆破接口-未授权访问-SQL注入  二.打点收集1.失败的绕过登陆在进行信息收集的时候，发现该系统登陆失败与成功返回的状态码，登陆成功为1000、登陆失败为1100 在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白，刷新网页，F12看请求，查看有无接口存在：  尝试访问该接口，得到返回成功的">
+    <meta name="description" content="一.思路1绕过登陆（无效）-发现接口-JS审计-爆破接口-未授权访问-SQL注入  二.打点收集1.失败的绕过登陆在进行信息收集的时候，发现该系统登陆失败与成功返回的状态码，登陆成功为1000、登陆失败为1100 在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白 后边才发现直接吧login.html改成index.html也可以进入空白后">
 <meta property="og:type" content="article">
 <meta property="og:title" content="0day漏洞挖掘案例">
 <meta property="og:url" content="https://huclilu.github.io/posts/a83ff7dd/index.html">
 <meta property="og:site_name" content="Ace|安全之道、就在其中">
-<meta property="og:description" content="一.思路1绕过登陆（无效）-发现接口-JS审计-爆破接口-未授权访问-SQL注入  二.打点收集1.失败的绕过登陆在进行信息收集的时候，发现该系统登陆失败与成功返回的状态码，登陆成功为1000、登陆失败为1100 在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白，刷新网页，F12看请求，查看有无接口存在：  尝试访问该接口，得到返回成功的">
+<meta property="og:description" content="一.思路1绕过登陆（无效）-发现接口-JS审计-爆破接口-未授权访问-SQL注入  二.打点收集1.失败的绕过登陆在进行信息收集的时候，发现该系统登陆失败与成功返回的状态码，登陆成功为1000、登陆失败为1100 在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白 后边才发现直接吧login.html改成index.html也可以进入空白后">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/202210281.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/202210282.png">
@@ -44,7 +44,7 @@
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102827.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102828.png">
 <meta property="article:published_time" content="2022-10-28T01:40:11.000Z">
-<meta property="article:modified_time" content="2022-10-28T04:46:58.682Z">
+<meta property="article:modified_time" content="2022-10-28T04:54:53.828Z">
 <meta property="article:author" content="老A">
 <meta property="article:tag" content="漏洞挖掘">
 <meta name="twitter:card" content="summary">
@@ -151,7 +151,7 @@
     </span>
     <br />
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">一.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%89%93%E7%82%B9%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">二.打点收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A4%B1%E8%B4%A5%E7%9A%84%E7%BB%95%E8%BF%87%E7%99%BB%E9%99%86"><span class="toc-number">2.1.</span> <span class="toc-text">1.失败的绕过登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-JS%E5%AE%A1%E8%AE%A1"><span class="toc-number">2.2.</span> <span class="toc-text">2.JS审计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AEx1"><span class="toc-number">3.</span> <span class="toc-text">三.未授权访问x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%B3%E6%9A%97%E8%8A%B1%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">3.柳暗花明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%B9%E9%87%8F%E9%AA%8C%E8%AF%81"><span class="toc-number">3.2.</span> <span class="toc-text">4.批量验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-END"><span class="toc-number">3.3.</span> <span class="toc-text">5.END</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-SQL%E6%B3%A8%E5%85%A5x1"><span class="toc-number">4.</span> <span class="toc-text">四.SQL注入x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%87%BA%E8%B4%A7-2"><span class="toc-number">4.1.</span> <span class="toc-text">6.出货*2</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">一.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%89%93%E7%82%B9%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">二.打点收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A4%B1%E8%B4%A5%E7%9A%84%E7%BB%95%E8%BF%87%E7%99%BB%E9%99%86"><span class="toc-number">2.1.</span> <span class="toc-text">1.失败的绕过登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-JS%E5%AE%A1%E8%AE%A1"><span class="toc-number">2.2.</span> <span class="toc-text">2.JS审计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AEx1"><span class="toc-number">3.</span> <span class="toc-text">三.未授权访问x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%B3%E6%9A%97%E8%8A%B1%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">3.柳暗花明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%B9%E9%87%8F%E9%AA%8C%E8%AF%81"><span class="toc-number">3.2.</span> <span class="toc-text">4.批量验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-end"><span class="toc-number">3.3.</span> <span class="toc-text">5.end</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-SQL%E6%B3%A8%E5%85%A5x1"><span class="toc-number">4.</span> <span class="toc-text">四.SQL注入x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%87%BA%E8%B4%A7-2"><span class="toc-number">4.1.</span> <span class="toc-text">6.出货*2</span></a></li></ol></li></ol>
     </div>
     <br />
     <span id="actions">
@@ -227,7 +227,7 @@
       
         <time datetime="2022-10-28T01:40:11.000Z" itemprop="datePublished">2022-10-28</time>
         
-        (Updated: <time datetime="2022-10-28T04:46:58.682Z" itemprop="dateModified">2022-10-28</time>)
+        (Updated: <time datetime="2022-10-28T04:54:53.828Z" itemprop="dateModified">2022-10-28</time>)
         
       
     </div>
@@ -250,7 +250,9 @@
     <h2 id="一-思路"><a href="#一-思路" class="headerlink" title="一.思路"></a>一.思路</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">绕过登陆（无效）-发现接口-JS审计-爆破接口-未授权访问-SQL注入</span><br></pre></td></tr></table></figure>
 
 <h2 id="二-打点收集"><a href="#二-打点收集" class="headerlink" title="二.打点收集"></a>二.打点收集</h2><h3 id="1-失败的绕过登陆"><a href="#1-失败的绕过登陆" class="headerlink" title="1.失败的绕过登陆"></a>1.失败的绕过登陆</h3><p>在进行信息收集的时候，发现该系统登陆失败与成功返回的状态码，登陆成功为1000、登陆失败为1100<br><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/202210281.png"></p>
-<p>在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白，刷新网页，F12看请求，查看有无接口存在：</p>
+<p>在登陆的时候进行抓包，修改返回包的状态码为1000，此时提示登陆成功，页面跳转到后台管理首页，但是页面是空白</p>
+<p>后边才发现直接吧login.html改成index.html也可以进入空白后台。。所以是失败的绕过登陆</p>
+<p>刷新网页，F12看请求，查看有无接口存在：</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/202210282.png"></p>
 <p>尝试访问该接口，得到返回成功的一条信息</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/202210283.png"></p>
@@ -307,7 +309,7 @@
 
 <p>成功返回资源地址</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102819.png"></p>
-<p>尝试对资源地址进行访问，，，–直接未授权访问，可以进行删除、查询、添加等操作</p>
+<p>尝试对资源地址进行访问，直接未授权访问，可以进行删除、查询、添加等操作</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102820.png"></p>
 <p>尝试访问别的资源</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102821.png"></p>
@@ -316,7 +318,7 @@
 <h3 id="4-批量验证"><a href="#4-批量验证" class="headerlink" title="4.批量验证"></a>4.批量验证</h3><p>直接POST请求以及GET请求未授权接口获取信息即可</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102823.png"></p>
 <p>吼吼吼 <img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/dog.jpg"></p>
-<h3 id="5-END"><a href="#5-END" class="headerlink" title="5.END"></a>5.END</h3><p>到这里你以为结束了？？？</p>
+<h3 id="5-end"><a href="#5-end" class="headerlink" title="5.end"></a>5.end</h3><p>到这里你以为结束了？？？</p>
 <p>怎么可能！！！</p>
 <p>未授权到手了，证书有了，但是一个不行啊，太少了，都未授权了，为什么不试试别的？？？</p>
 <p>不多搞一下对不起熬那么晚的夜啊</p>
@@ -334,7 +336,7 @@
 <p>请求成功！！！</p>
 <p>修改null为1’，继续发送，测试是否存在SQL注入</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102827.png"></p>
-<p>加引号！！！</p>
+<p>意思是让我们字符型加引号就好了</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/2022102828.png"></p>
 <p>SQL注入一枚，证书*2</p>
 
@@ -362,7 +364,7 @@
     </div>
 
     <div id="toc-footer"  class="Popup" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">一.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%89%93%E7%82%B9%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">二.打点收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A4%B1%E8%B4%A5%E7%9A%84%E7%BB%95%E8%BF%87%E7%99%BB%E9%99%86"><span class="toc-number">2.1.</span> <span class="toc-text">1.失败的绕过登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-JS%E5%AE%A1%E8%AE%A1"><span class="toc-number">2.2.</span> <span class="toc-text">2.JS审计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AEx1"><span class="toc-number">3.</span> <span class="toc-text">三.未授权访问x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%B3%E6%9A%97%E8%8A%B1%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">3.柳暗花明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%B9%E9%87%8F%E9%AA%8C%E8%AF%81"><span class="toc-number">3.2.</span> <span class="toc-text">4.批量验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-END"><span class="toc-number">3.3.</span> <span class="toc-text">5.END</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-SQL%E6%B3%A8%E5%85%A5x1"><span class="toc-number">4.</span> <span class="toc-text">四.SQL注入x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%87%BA%E8%B4%A7-2"><span class="toc-number">4.1.</span> <span class="toc-text">6.出货*2</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">一.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%89%93%E7%82%B9%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">二.打点收集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A4%B1%E8%B4%A5%E7%9A%84%E7%BB%95%E8%BF%87%E7%99%BB%E9%99%86"><span class="toc-number">2.1.</span> <span class="toc-text">1.失败的绕过登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-JS%E5%AE%A1%E8%AE%A1"><span class="toc-number">2.2.</span> <span class="toc-text">2.JS审计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AEx1"><span class="toc-number">3.</span> <span class="toc-text">三.未授权访问x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9F%B3%E6%9A%97%E8%8A%B1%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">3.柳暗花明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%89%B9%E9%87%8F%E9%AA%8C%E8%AF%81"><span class="toc-number">3.2.</span> <span class="toc-text">4.批量验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-end"><span class="toc-number">3.3.</span> <span class="toc-text">5.end</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-SQL%E6%B3%A8%E5%85%A5x1"><span class="toc-number">4.</span> <span class="toc-text">四.SQL注入x1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%87%BA%E8%B4%A7-2"><span class="toc-number">4.1.</span> <span class="toc-text">6.出货*2</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer"  class="Popup" style="display: none">
