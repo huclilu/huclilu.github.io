@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="记一次微信小程序渗透测试1信息收集-文件上传失败-SQL注入(非DBA)-小程序后台-文件上传失败-文件上传成功-GetShell  工具环境：Windows10、VX客户端V3.7.5.23、Proxifier、Bp 1.proxifier+bp抓取微信小程序进程包 2.信息收集12345域名：https:&#x2F;&#x2F;www.xxx.cnIP:	  101.xx.xxx.8端口：21、22、3306、8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次微信小程序渗透测试">
+<meta property="og:url" content="https://huclilu.github.io/posts/6608ce41/index.html">
+<meta property="og:site_name" content="Ace|安全之道、就在其中">
+<meta property="og:description" content="记一次微信小程序渗透测试1信息收集-文件上传失败-SQL注入(非DBA)-小程序后台-文件上传失败-文件上传成功-GetShell  工具环境：Windows10、VX客户端V3.7.5.23、Proxifier、Bp 1.proxifier+bp抓取微信小程序进程包 2.信息收集12345域名：https:&#x2F;&#x2F;www.xxx.cnIP:	  101.xx.xxx.8端口：21、22、3306、8">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205234756668.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205234730198.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235148942.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235259085.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221206001038084.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235025747.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/baocuo.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/sqlmap.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235654671.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/sqlmap%E8%B7%91%E5%87%BA%E5%AF%86%E7%A0%81.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/houtai.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/dog.jpg">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221206000044981.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/xiongda.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/ueditor.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/upcg.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/yijianlianjie.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/SYHD459719813012.gif">
+<meta property="article:published_time" content="2022-12-06T09:57:54.000Z">
+<meta property="article:modified_time" content="2022-12-06T09:59:47.584Z">
+<meta property="article:author" content="老A">
+<meta property="article:tag" content="漏洞挖掘">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205234756668.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    
+      <title>记一次微信小程序渗透测试</title>
+    
+    
+    <!-- styles -->
+
+    <!-- 默认CSS引入方法 -->
+    
+<link rel="stylesheet" href="/css/whiteStyle.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+
+  
+  <!-- L2Dwidget -->
+  
+<script src="/lib/live2d/L2Dwidget.min.js"></script>
+
+
+  <script>
+  // 猫
+  L2Dwidget.init({
+    model: {
+      jsonPath: "/lib/live2d/tororo/assets/tororo.model.json",
+    },
+    display: {
+      superSample: 2,
+      width: 60,
+      height: 80,
+      position: 'right',
+      hOffset: 0,
+      vOffset: 20,
+    },
+    mobile: {
+      show: true,
+      scale: 1,
+      motion: true,
+    },
+    react: {
+      opacityDefault: 1,
+      opacityOnHover: 1,
+    }
+  })
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body class="max-width mx-auto px3 lte">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" "Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"
+    style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">
+              首页
+            </a></li>
+          
+          <li><a href="/about/">
+              关于
+            </a></li>
+          
+          <li><a href="/archives/">
+              归档
+            </a></li>
+          
+          <li><a href="/search/">
+              搜索
+            </a></li>
+          
+      </ul>
+    </span>
+    <br />
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">记一次微信小程序渗透测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-proxifier-bp%E6%8A%93%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E5%8C%85"><span class="toc-number">1.1.</span> <span class="toc-text">1.proxifier+bp抓取微信小程序进程包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.2.</span> <span class="toc-text">2.信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.3.</span> <span class="toc-text">3.文件上传(失败)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-SQL%E6%B3%A8%E5%85%A5-%E9%9D%9EDBA"><span class="toc-number">1.4.</span> <span class="toc-text">4.SQL注入(非DBA)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%90%8E%E5%8F%B0"><span class="toc-number">1.5.</span> <span class="toc-text">5.小程序后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.6.</span> <span class="toc-text">6.文件上传(失败)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E6%88%90%E5%8A%9F"><span class="toc-number">1.7.</span> <span class="toc-text">7.文件上传(成功)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-GetShell"><span class="toc-number">1.8.</span> <span class="toc-text">8.GetShell</span></a></li></ol></li></ol>
+    </div>
+    <br />
+    <span id="actions">
+      <ul>
+        
+            
+              <li><a class="icon" aria-label="下一篇 " href="/posts/a83ff7dd/"><i
+                    class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();"
+                    onmouseout="$('#i-next').toggle();"></i></a></li>
+              
+                <li><a class="icon" aria-label="返回顶部 " href="#"
+                    onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up"
+                      aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a>
+                </li>
+                <li><a class="icon" aria-label="分享文章 " href="#"><i class="fas fa-share-alt"
+                      aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();"
+                      onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">
+        上一篇
+      </span>
+      <span id="i-next" class="info" style="display:none;">
+        下一篇
+      </span>
+      <span id="i-top" class="info" style="display:none;">
+        返回顶部
+      </span>
+      <span id="i-share" class="info" style="display:none;">
+        分享文章
+      </span>
+    </span>
+    <br />
+    <div id="share" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/6608ce41/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/6608ce41/&text=记一次微信小程序渗透测试"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/6608ce41/&is_video=false&description=记一次微信小程序渗透测试"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次微信小程序渗透测试&body=Check out this article: https://huclilu.github.io/posts/6608ce41/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/6608ce41/&name=记一次微信小程序渗透测试&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/6608ce41/&t=记一次微信小程序渗透测试"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+  </span>
+</div>
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        记一次微信小程序渗透测试
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">老A</span>
+      </span>
+      <!-- 文章时间和首页时间 -->
+
+    <div class="postdate">
+      
+        <time datetime="2022-12-06T09:57:54.000Z" itemprop="datePublished">2022-12-06</time>
+        
+        (Updated: <time datetime="2022-12-06T09:59:47.584Z" itemprop="dateModified">2022-12-06</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/" rel="tag">漏洞挖掘</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content conterDiy" itemprop="articleBody">
+    <h2 id="记一次微信小程序渗透测试"><a href="#记一次微信小程序渗透测试" class="headerlink" title="记一次微信小程序渗透测试"></a>记一次微信小程序渗透测试</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">信息收集-文件上传失败-SQL注入(非DBA)-小程序后台-文件上传失败-文件上传成功-GetShell</span><br></pre></td></tr></table></figure>
+
+<p>工具环境：Windows10、VX客户端V3.7.5.23、Proxifier、Bp</p>
+<h3 id="1-proxifier-bp抓取微信小程序进程包"><a href="#1-proxifier-bp抓取微信小程序进程包" class="headerlink" title="1.proxifier+bp抓取微信小程序进程包"></a>1.proxifier+bp抓取微信小程序进程包</h3><p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205234756668.png" alt="image-20221205234756668"></p>
+<h3 id="2-信息收集"><a href="#2-信息收集" class="headerlink" title="2.信息收集"></a>2.信息收集</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">域名：https://www.xxx.cn</span><br><span class="line">IP:	  101.xx.xxx.8</span><br><span class="line">端口：21、22、3306、888、8888（必须宝塔）443</span><br><span class="line">小程序后台：https://www.xxx.cn/admin/auth/login.html</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>我一般测小程序主要挖密码找回、支付逻辑、短信炸弹、登陆绕过、越权等，随后找注入，上传等能拿到shell的或者其余高危漏洞。</p>
+<h3 id="3-文件上传-失败"><a href="#3-文件上传-失败" class="headerlink" title="3.文件上传(失败)"></a>3.文件上传(失败)</h3><p>随后微信客户端打开小程序，输入手机号验证码登陆</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205234730198.png" alt="image-20221205234730198"></p>
+<p>这个小程序逻辑也基本测完了，基于token做权限认证，貌似不存在越权什么的<br>剩下的就是个人中心（小程序中一般称我的）上传头像处进行文件上传，此处应该是做了白名单验证，上传不成功</p>
+<p>又或者上传成功了，但是找不到上传位置(反编译小程序源代码或许会找到点思路，此处未进行此操作)</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235148942.png" alt="image-20221205235148942"></p>
+<p>查看返回包内容：</p>
+<p>应该是上传失败了，图片参数显示未定义</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235259085.png" alt="image-20221205235259085"></p>
+<p>随后就找注入（商品、栏目、购物车、个人信息、搜索框等），有多个未加密的ID参数，尝试报错，时间盲注都无结果</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221206001038084.png" alt="image-20221206001038084"></p>
+<h3 id="4-SQL注入-非DBA"><a href="#4-SQL注入-非DBA" class="headerlink" title="4.SQL注入(非DBA)"></a>4.SQL注入(非DBA)</h3><p>测完了其它功能就剩一个搜索框了（之前测得不少小程序搜索框只是摆设，并无实际搜索功能，所以最后才测试有无注入什么的）</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235025747.png" alt="image-20221205235025747"></p>
+<p>未曾想到一发入魂，报错注入：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/baocuo.png"></p>
+<p>熟悉TP的师傅们一眼也能看出来，不是TP就是基于TP二开的，试了试老洞也没有结果</p>
+<p>sqlmap看看是不是DBA</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/sqlmap.png"></p>
+<h3 id="5-小程序后台"><a href="#5-小程序后台" class="headerlink" title="5.小程序后台"></a>5.小程序后台</h3><p>很遗憾并不是，但是此时我们已经收集到了小程序的后台：<a target="_blank" rel="noopener" href="https://www.xxx.cn/admin/auth/login.html">https://www.xxx.cn/admin/auth/login.html</a></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221205235654671.png" alt="image-20221205235654671"></p>
+<p>弱口令无果，那就sqlmap跑出来管理员账号密码</p>
+<p>直接跑出管理员账号密码看看登陆进去能不能拿到shell</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/sqlmap%E8%B7%91%E5%87%BA%E5%AF%86%E7%A0%81.png"></p>
+<p>管理员用户有好几个，密码貌似没见过这种加密方式、强用户名，猜测极有可能是弱密码了，123456做密码，进入后台。</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/houtai.png"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/dog.jpg"></p>
+<h3 id="6-文件上传-失败"><a href="#6-文件上传-失败" class="headerlink" title="6.文件上传(失败)"></a>6.文件上传(失败)</h3><p>进入后台首要找上传点，个人信息处头像上传，课程编辑图片上传、都上传不了马儿</p>
+<p>各种提示文件不支持，要么就是不解析什么的</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20221206000044981.png" alt="image-20221206000044981"></p>
+<p>唉~</p>
+<p> <img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/xiongda.png"></p>
+<p>随后随便点开各个功能模块，测试有无别的洞，点击其中一个模块提示无权限。</p>
+<p>意思就是这只是其中一个管理员账号，还有别的不同权限的管理员账号</p>
+<p>随后换账号，弱密码123456继续登陆进来</p>
+<h3 id="7-文件上传-成功"><a href="#7-文件上传-成功" class="headerlink" title="7.文件上传(成功)"></a>7.文件上传(成功)</h3><p>是一个业务专员的账号，页面功能模块不一样了，感觉有戏</p>
+<p>继续找上传。。。终于，ueditor编辑器，然后看到页面URL，tp的伪静态，估计也有注入，还是找上传吧</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/ueditor.png"></p>
+<p>测试之后，前端绕过即可，PHP上传成功</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/upcg.png"></p>
+<h3 id="8-GetShell"><a href="#8-GetShell" class="headerlink" title="8.GetShell"></a>8.GetShell</h3><p>蚁剑连接，成功getshell</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/yijianlianjie.png"></p>
+<p>总结：前台小程序个人头像上传处上传图片失败（大概率）还是成功，可能需要裤子脱下来才能知道，算了吧</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/SYHD459719813012.gif"></p>
+<p>你裤子都没脱，你凭什么？</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" class="Popup" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer"  class="Popup" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%B0%E4%B8%80%E6%AC%A1%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">记一次微信小程序渗透测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-proxifier-bp%E6%8A%93%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E5%8C%85"><span class="toc-number">1.1.</span> <span class="toc-text">1.proxifier+bp抓取微信小程序进程包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.2.</span> <span class="toc-text">2.信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.3.</span> <span class="toc-text">3.文件上传(失败)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-SQL%E6%B3%A8%E5%85%A5-%E9%9D%9EDBA"><span class="toc-number">1.4.</span> <span class="toc-text">4.SQL注入(非DBA)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%90%8E%E5%8F%B0"><span class="toc-number">1.5.</span> <span class="toc-text">5.小程序后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E5%A4%B1%E8%B4%A5"><span class="toc-number">1.6.</span> <span class="toc-text">6.文件上传(失败)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E6%88%90%E5%8A%9F"><span class="toc-number">1.7.</span> <span class="toc-text">7.文件上传(成功)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-GetShell"><span class="toc-number">1.8.</span> <span class="toc-text">8.GetShell</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer"  class="Popup" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/6608ce41/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/6608ce41/&text=记一次微信小程序渗透测试"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/6608ce41/&is_video=false&description=记一次微信小程序渗透测试"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次微信小程序渗透测试&body=Check out this article: https://huclilu.github.io/posts/6608ce41/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/6608ce41/&title=记一次微信小程序渗透测试"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/6608ce41/&name=记一次微信小程序渗透测试&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/6608ce41/&t=记一次微信小程序渗透测试"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+   
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2020-2022
+    老A
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+    console.log('1')
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+      setTimeout(()=>{
+        e.trigger.setAttribute('aria-label', "复制到粘贴板!");
+      },1500)
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+
+    <div class="img-pup" style="display: none;"> 
+      <img>
+    </div>
+<!-- 雪花特效2 -->
+
+  <script type="text/javascript" src="/js/snow.js"></script>
+
+</body>
+</html>
