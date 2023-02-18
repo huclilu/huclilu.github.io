@@ -23,25 +23,6 @@
     
     
     <entry>
-      <title>记一次空白页面的渗透</title>
-      <link href="/posts/f7881607/"/>
-      <url>/posts/f7881607/</url>
-      
-        <content type="html"><![CDATA[<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">空白页面-登陆框-注入-os-shell--cs-进局子</span><br></pre></td></tr></table></figure><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113110930619.png" alt="image-20230113110930619"></p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113111122234.png" alt="image-20230113111122234"></p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113111151550.png" alt="image-20230113111151550"></p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113111529694.png" alt="image-20230113111529694"></p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113111740871.png" alt="image-20230113111740871"></p><p>报错页面：</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113112135475.png" alt="image-20230113112135475"></p><p>随后–os-shell</p><p><img src="C:\Users\joker\AppData\Roaming\Typora\typora-user-images\image-20230113113234203.png" alt="image-20230113113234203"></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">无软硬云waf的-直接上线</span><br><span class="line">有waf的，可尝试免杀powershell上线</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      
-        <tags>
-            
-            <tag> 漏洞挖掘 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>记一次微信小程序渗透测试</title>
       <link href="/posts/6608ce41/"/>
       <url>/posts/6608ce41/</url>
