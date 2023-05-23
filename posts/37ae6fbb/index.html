@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230330001654028.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230330002035412.png">
 <meta property="article:published_time" content="2023-03-29T12:38:34.000Z">
-<meta property="article:modified_time" content="2023-05-23T06:33:49.032Z">
+<meta property="article:modified_time" content="2023-05-23T06:39:48.466Z">
 <meta property="article:author" content="li1u">
 <meta property="article:tag" content="漏洞挖掘">
 <meta name="twitter:card" content="summary">
@@ -142,7 +142,7 @@
     </span>
     <br />
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Heapdump%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">2.</span> <span class="toc-text">2.Heapdump信息泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-jolokia%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">3.jolokia命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%99%BB%E9%99%86%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">4.</span> <span class="toc-text">4.登陆数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-NPC%E8%90%BD%E5%9C%B0%E8%BF%9B%E5%86%85%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">5.NPC落地进内网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">6.</span> <span class="toc-text">6.敏感信息泄露</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Heapdump%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">2.</span> <span class="toc-text">2.Heapdump信息泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-jolokia%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%EF%BC%88jolokia-Realm-JNDI-RCE%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.jolokia命令执行（jolokia Realm JNDI RCE）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%99%BB%E9%99%86%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">4.</span> <span class="toc-text">4.登陆数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-NPC%E8%90%BD%E5%9C%B0%E8%BF%9B%E5%86%85%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">5.NPC落地进内网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">6.</span> <span class="toc-text">6.敏感信息泄露</span></a></li></ol>
     </div>
     <br />
     <span id="actions">
@@ -218,7 +218,7 @@
       
         <time datetime="2023-03-29T12:38:34.000Z" itemprop="datePublished">2023-03-29</time>
         
-        (Updated: <time datetime="2023-05-23T06:33:49.032Z" itemprop="dateModified">2023-05-23</time>)
+        (Updated: <time datetime="2023-05-23T06:39:48.466Z" itemprop="dateModified">2023-05-23</time>)
         
       
     </div>
@@ -255,7 +255,7 @@
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230329214026991.png" alt="image-20230329214026991"></p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230329214141373.png" alt="image-20230329214141373"></p>
 <p>将收集到的密码做成字典，后期可以做爆破口令用，成功登陆外网druid</p>
-<h2 id="3-jolokia命令执行"><a href="#3-jolokia命令执行" class="headerlink" title="3.jolokia命令执行"></a>3.jolokia命令执行</h2><p>目标不止有heapdump、还有jolokia端点，jolokia存在RCE漏洞，但是有利用条件（目标JDK版本、是否存在端点以及引用了jolokia-core依赖等）：直接访问&#x2F;jolokia&#x2F;list查看有无type&#x3D;MBeanFactory 和 createJNDIRealm参数可判断是否可能RCE，jolokia&#x2F;list下存在这两个参数，尝试进行jndi注入（GitHub有诸多jndi工具以及利用详情）</p>
+<h2 id="3-jolokia命令执行（jolokia-Realm-JNDI-RCE）"><a href="#3-jolokia命令执行（jolokia-Realm-JNDI-RCE）" class="headerlink" title="3.jolokia命令执行（jolokia Realm JNDI RCE）"></a>3.jolokia命令执行（jolokia Realm JNDI RCE）</h2><p>目标不止有heapdump、还有jolokia端点，jolokia存在RCE漏洞，但是有利用条件（目标JDK版本、是否存在端点以及引用了jolokia-core依赖等）：直接访问&#x2F;jolokia&#x2F;list查看有无type&#x3D;MBeanFactory 和 createJNDIRealm参数可判断是否可能RCE，jolokia&#x2F;list下存在这两个参数，尝试进行jndi注入（GitHub有诸多jndi工具以及利用详情）</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230329215501444.png" alt="image-20230329215501444"></p>
 <p>目标有接收请求，貌似也请求了VPS上的class文件，但是反弹shell没反应。大概率是目标主机jdk版本过高导致反弹shell失败，尝试进行高版本jdk进行jndi注入。</p>
 <p>提取准备好base64编码之后的反弹shell语句</p>
@@ -326,7 +326,7 @@
     </div>
 
     <div id="toc-footer"  class="Popup" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Heapdump%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">2.</span> <span class="toc-text">2.Heapdump信息泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-jolokia%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">3.jolokia命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%99%BB%E9%99%86%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">4.</span> <span class="toc-text">4.登陆数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-NPC%E8%90%BD%E5%9C%B0%E8%BF%9B%E5%86%85%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">5.NPC落地进内网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">6.</span> <span class="toc-text">6.敏感信息泄露</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">1.思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Heapdump%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">2.</span> <span class="toc-text">2.Heapdump信息泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-jolokia%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%EF%BC%88jolokia-Realm-JNDI-RCE%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">3.jolokia命令执行（jolokia Realm JNDI RCE）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E7%99%BB%E9%99%86%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">4.</span> <span class="toc-text">4.登陆数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-NPC%E8%90%BD%E5%9C%B0%E8%BF%9B%E5%86%85%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">5.NPC落地进内网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">6.</span> <span class="toc-text">6.敏感信息泄露</span></a></li></ol>
     </div>
 
     <div id="share-footer"  class="Popup" style="display: none">
