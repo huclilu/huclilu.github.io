@@ -43,7 +43,7 @@
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230528140456573.png">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230528140718462.png">
 <meta property="article:published_time" content="2023-05-28T06:26:35.000Z">
-<meta property="article:modified_time" content="2023-05-28T06:59:40.789Z">
+<meta property="article:modified_time" content="2023-05-28T07:01:12.719Z">
 <meta property="article:author" content="li1u">
 <meta property="article:tag" content="漏洞挖掘">
 <meta name="twitter:card" content="summary">
@@ -226,7 +226,7 @@
       
         <time datetime="2023-05-28T06:26:35.000Z" itemprop="datePublished">2023-05-28</time>
         
-        (Updated: <time datetime="2023-05-28T06:59:40.789Z" itemprop="dateModified">2023-05-28</time>)
+        (Updated: <time datetime="2023-05-28T07:01:12.719Z" itemprop="dateModified">2023-05-28</time>)
         
       
     </div>
@@ -296,7 +296,7 @@
 <p>貌似没用到token什么的进行鉴权，尝试访问可获取到用户敏感信息</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230528092904122.png" alt="image-20230528092904122"></p>
 <p>用同样的方法访问其余站点，试了几个之后均存在敏感信息泄露</p>
-<p>编写afrog（<a target="_blank" rel="noopener" href="https://github.com/zan8in/afrog/%EF%BC%89%E7%9A%84POC%EF%BC%8C%E6%89%B9%E9%87%8F%E5%88%B7%E4%B8%80%E4%B8%8B%EF%BC%9A">https://github.com/zan8in/afrog/）的POC，批量刷一下：</a></p>
+<p>编写afrog <a target="_blank" rel="noopener" href="https://github.com/zan8in/afrog">https://github.com/zan8in/afrog</a> 的通用POC，批量刷一下：</p>
 <p>首先服务地址是在xxx.js文件中泄露的，先判断是否存在xxx.js，若不存在就跳过，其次是假如开启登陆认证的话，请求头会要求Authorization，内容是第一次heapdump泄露的username:password进行base64编码后的结果</p>
 <p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/picture/image-20230528103059005.png" alt="image-20230528103059005"></p>
 <p>结果如下：（并未进行敏感操作）</p>
