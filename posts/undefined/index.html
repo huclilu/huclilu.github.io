@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="思路：信息收集-真实IP-前后端分离-接口FUZZ-接口敏感信息泄露 工具：Burp&#x2F;Yakit+FOFA + reverse-sourcemap+FindSomething 1.信息收集某次攻防演练，给定目标域名资产：xxxtest.xxx.com，要求拿分。先着手进行信息收集，访问该url，页面跳转到登录界面，大概长这个样子：  登录界面 Wappalyzer显示前端VUE框架：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="攻防演练之接口敏感信息泄露">
+<meta property="og:url" content="https://huclilu.github.io/posts/undefined/index.html">
+<meta property="og:site_name" content="li1u|不知名安全研究员">
+<meta property="og:description" content="思路：信息收集-真实IP-前后端分离-接口FUZZ-接口敏感信息泄露 工具：Burp&#x2F;Yakit+FOFA + reverse-sourcemap+FindSomething 1.信息收集某次攻防演练，给定目标域名资产：xxxtest.xxx.com，要求拿分。先着手进行信息收集，访问该url，页面跳转到登录界面，大概长这个样子：  登录界面 Wappalyzer显示前端VUE框架：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/53b7b3c9eb19c78a985f610b01558d26.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/e453978ce05f87fb8373bf309c150eba.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f9bd2ba73da5424a7e8dfd080125b179.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f2c9ed9d6ee7068f90773fa96db5c04d.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f9bf9688eedc1a8732df2622b781b21c.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/e72b3070f83b2d73b48660abecf13108.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/6b4328040d904f8e555c9791738b21d0.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/617057a55c0031a673de0a8453e450b5.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f75fe4d3e8ad5595a0d343915f8c8eb1.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/24df6c4bb43b1ce805b2fd8b2cf9f8e0.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/3af80393dab2d0cec423501cf7c4ac1a.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/4287313d9c81637a976da969001bedfb.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/4a7755b4c1098d7d11e7dbe5cf9e3d09.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/001be87d97e5600e92d9f4d06652535c.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/07560b28bb4158968f8b87ad36b8f3a1.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/e14580f0ea521b1d63a39bbd69385e7b.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/73e9971fb19cac131cff92398c9c82ad.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/49f8172e9129f9d5e84f2c10cf0208d1.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f525906a88cc5bb2c97adf8aa07bafda.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/1a13b81d75b57749a0df264b407ee607.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/aef7eef54463d444493f400bd9a0881c.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/85ec334ab38e11aa5b0ae02b19cd117f.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/f26e63a221ae0dc0efa29457f117f191.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/ad0e3a26e6bb2d92d6ce3c2e22e06f50.png-quanzi">
+<meta property="og:image" content="https://secquan.zzyuncheng.com/ef4d08a72de2402ddfba41ebe77baf31.png-quanzi">
+<meta property="article:published_time" content="2023-12-10T11:59:45.000Z">
+<meta property="article:modified_time" content="2023-12-10T12:00:31.811Z">
+<meta property="article:author" content="li1u">
+<meta property="article:tag" content="攻防演练">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://secquan.zzyuncheng.com/53b7b3c9eb19c78a985f610b01558d26.png-quanzi">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    
+      <title>攻防演练之接口敏感信息泄露</title>
+    
+    
+    <!-- styles -->
+
+    <!-- 默认CSS引入方法 -->
+    
+<link rel="stylesheet" href="/css/whiteStyle.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+
+  
+  <!-- L2Dwidget -->
+  
+<script src="/lib/live2d/L2Dwidget.min.js"></script>
+
+
+  <script>
+  // 猫
+  L2Dwidget.init({
+    model: {
+      jsonPath: "/lib/live2d/tororo/assets/tororo.model.json",
+    },
+    display: {
+      superSample: 2,
+      width: 60,
+      height: 80,
+      position: 'right',
+      hOffset: 0,
+      vOffset: 20,
+    },
+    mobile: {
+      show: true,
+      scale: 1,
+      motion: true,
+    },
+    react: {
+      opacityDefault: 1,
+      opacityOnHover: 1,
+    }
+  })
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+<body class="max-width mx-auto px3 lte">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" "Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"
+    style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        
+          <li><a href="/">
+              首页
+            </a></li>
+          
+          <li><a href="/about/">
+              关于
+            </a></li>
+          
+          <li><a href="/archives/">
+              归档
+            </a></li>
+          
+          <li><a href="/search/">
+              搜索
+            </a></li>
+          
+      </ul>
+    </span>
+    <br />
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">1.信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%9C%9F%E5%AE%9EIP"><span class="toc-number">2.</span> <span class="toc-text">2.真实IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB"><span class="toc-number">3.</span> <span class="toc-text">3.前后端分离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8E%A5%E5%8F%A3FUZZ"><span class="toc-number">4.</span> <span class="toc-text">4.接口FUZZ</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">5.</span> <span class="toc-text">5. 敏感信息泄露</span></a></li></ol>
+    </div>
+    <br />
+    <span id="actions">
+      <ul>
+        
+            
+              <li><a class="icon" aria-label="下一篇 " href="/posts/79f4808/"><i
+                    class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();"
+                    onmouseout="$('#i-next').toggle();"></i></a></li>
+              
+                <li><a class="icon" aria-label="返回顶部 " href="#"
+                    onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up"
+                      aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a>
+                </li>
+                <li><a class="icon" aria-label="分享文章 " href="#"><i class="fas fa-share-alt"
+                      aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();"
+                      onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">
+        上一篇
+      </span>
+      <span id="i-next" class="info" style="display:none;">
+        下一篇
+      </span>
+      <span id="i-top" class="info" style="display:none;">
+        返回顶部
+      </span>
+      <span id="i-share" class="info" style="display:none;">
+        分享文章
+      </span>
+    </span>
+    <br />
+    <div id="share" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/undefined/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/undefined/&text=攻防演练之接口敏感信息泄露"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/undefined/&is_video=false&description=攻防演练之接口敏感信息泄露"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=攻防演练之接口敏感信息泄露&body=Check out this article: https://huclilu.github.io/posts/undefined/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/undefined/&name=攻防演练之接口敏感信息泄露&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/undefined/&t=攻防演练之接口敏感信息泄露"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+  </span>
+</div>
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        攻防演练之接口敏感信息泄露
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">li1u</span>
+      </span>
+      <!-- 文章时间和首页时间 -->
+
+    <div class="postdate">
+      
+        <time datetime="2023-12-10T11:59:45.000Z" itemprop="datePublished">2023-12-10</time>
+        
+        (Updated: <time datetime="2023-12-10T12:00:31.811Z" itemprop="dateModified">2023-12-10</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%94%BB%E9%98%B2%E6%BC%94%E7%BB%83/" rel="tag">攻防演练</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content conterDiy" itemprop="articleBody">
+    <p><strong>思路：信息收集-真实IP-前后端分离-接口FUZZ-接口敏感信息泄露</strong></p>
+<p>工具：Burp&#x2F;Yakit+FOFA + reverse-sourcemap+FindSomething</p>
+<h2 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h2><p>某次攻防演练，给定目标域名资产：xxxtest.xxx.com，要求拿分。先着手进行信息收集，访问该url，页面跳转到登录界面，大概长这个样子：</p>
+<p><img src="https://secquan.zzyuncheng.com/53b7b3c9eb19c78a985f610b01558d26.png-quanzi" alt="file"></p>
+<p>登录界面</p>
+<p>Wappalyzer显示前端VUE框架：</p>
+<p><img src="https://secquan.zzyuncheng.com/e453978ce05f87fb8373bf309c150eba.png-quanzi" alt="file"></p>
+<p>FindSomething发现不少VUE文件及接口信息：</p>
+<p><img src="https://secquan.zzyuncheng.com/f9bd2ba73da5424a7e8dfd080125b179.png-quanzi" alt="file"></p>
+<p>查IP发现存在CDN：</p>
+<p><img src="https://secquan.zzyuncheng.com/f2c9ed9d6ee7068f90773fa96db5c04d.png-quanzi" alt="file"></p>
+<p>查JS文件发现webpack打包：（webpack打包之后的访问js文件很慢，应该是没有做优化加上JS太多的缘故）</p>
+<p><img src="https://secquan.zzyuncheng.com/f9bf9688eedc1a8732df2622b781b21c.png-quanzi" alt="file"></p>
+<p>信息收集结果如下：</p>
+<p>前后端分离：前端为webpack打包的VUE、后端Springboot</p>
+<p>IP：存在CDN—需绕过CDN查找真实IP</p>
+<p>icon：icon_hash&#x3D;xxxxxx</p>
+<h2 id="2-真实IP"><a href="#2-真实IP" class="headerlink" title="2.真实IP"></a>2.真实IP</h2><p>由于目标站点存在CDN以及某waf，需查找真实IP才可进行漏洞挖掘，查找真实IP的方法很多，这里不再赘述，根据信息收集到的icon的hash值尝试绕过CDN查找真实IP。</p>
+<p>将目标域名丢进FOFA，查看搜索结果，出现目标icon</p>
+<p><img src="https://secquan.zzyuncheng.com/e72b3070f83b2d73b48660abecf13108.png-quanzi" alt="file"></p>
+<p>FOFA-icon</p>
+<p>直接点击icon即可搜索对应的目标站点：</p>
+<p><img src="https://secquan.zzyuncheng.com/6b4328040d904f8e555c9791738b21d0.png-quanzi" alt="file"></p>
+<p>真实IP</p>
+<p>CDN也在搜索结果中：</p>
+<p><img src="https://secquan.zzyuncheng.com/617057a55c0031a673de0a8453e450b5.png-quanzi" alt="file"></p>
+<p>CDN</p>
+<h2 id="3-前后端分离"><a href="#3-前后端分离" class="headerlink" title="3.前后端分离"></a>3.前后端分离</h2><p>用这种方式查找出来的IP有待验证，需进一步信息收集确定是测试环境还是真实环境。</p>
+<p>找到了真实IP之后，将真实IP继续丢进FOFA，目的就是看系统开放了哪些服务以及端口开放情况（FOFA搜索不全，探测更多信息需另用工具）。</p>
+<p><img src="https://secquan.zzyuncheng.com/f75fe4d3e8ad5595a0d343915f8c8eb1.png-quanzi" alt="file"></p>
+<p>搜索结果</p>
+<p>访问该域名，发现一模一样的系统，着手进行漏洞挖掘</p>
+<p>F12打开浏览器检查出现了接口信息，并且接口地址为api.xxx.com，猜测为前后端分离的系统。</p>
+<p><img src="https://secquan.zzyuncheng.com/24df6c4bb43b1ce805b2fd8b2cf9f8e0.png-quanzi" alt="file"></p>
+<p>针对前后端分离的系统，尤其是接口特别多的时候，可以着重针对于接口未授权进行深入挖掘，有的开发安全意识不足，可能有些接口就未做鉴权，往往未作鉴权的接口就可作为突破点……</p>
+<p>言归正传，前后端分离的系统，专门查接口以及接口参数就对了，先用FindSomething的结果将接口参数提取出来。</p>
+<p><img src="https://secquan.zzyuncheng.com/3af80393dab2d0cec423501cf7c4ac1a.png-quanzi" alt="file"></p>
+<p>接口示例</p>
+<p>接口参数可直接用FindSomething提取出来，剩下的就是找接口了。之前获取接口信息找到了一个接口地址：xxx-xxx-service</p>
+<p>直接查找JS文件，找关键API，关键API找出来之后，拼接参数即可尝试获取敏感信息。（VUE框架，重点找xxx.app.js即可）</p>
+<p>前期根据信息收集得到的webpack打包的JS，直接搜索api、secret、username、token、service等关键字，发现xxx-xxx-service接口，该接口在一个键值对中，示例：</p>
+<p>{</p>
+<p>url: ‘xxx&#x2F;xxx&#x2F;xxx&#x2F;xxx’,</p>
+<p>}</p>
+<p><img src="https://secquan.zzyuncheng.com/4287313d9c81637a976da969001bedfb.png-quanzi" alt="file"></p>
+<p>接口-01</p>
+<p>继续查找接口，发现众多接口均存在一个JS对象的键值对中，键是url，值就是接口地址：</p>
+<p><img src="https://secquan.zzyuncheng.com/4a7755b4c1098d7d11e7dbe5cf9e3d09.png-quanzi" alt="file"></p>
+<p>接口-02</p>
+<p>全局搜索url，将JS文件中的url键值对全部提取出来，写正则匹配脚本也可以全部提取出来。共提取出一百多个接口。</p>
+<p>这里简单介绍一下接口规范，所有的接口都会按照这个规范进行涉及，统称restful架构的接口规范，举个例子：</p>
+<p><a target="_blank" rel="noopener" href="http://api.xxx.com/api/system/userLists">http://api.xxx.com/api/system/userLists</a></p>
+<p>接口api、system表示服务名称、userLists表示资源名称，看接口意思大概就能猜到获取用户列表接口，如果是GET型，后边肯定会加参数，比如：</p>
+<p><a target="_blank" rel="noopener" href="http://api.xxx.com/api/system/userLists?pageSzie=10&pageNum=1%EF%BC%8C%E6%84%8F%E6%80%9D%E5%BE%88%E6%98%8E%E7%A1%AE%EF%BC%8C%E5%B0%B1%E6%98%AF%E8%B0%83%E7%94%A8%E4%BA%86%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8%E7%9A%84%E6%8E%A5%E5%8F%A3%EF%BC%8C%E6%8F%90%E5%8F%96%E5%87%BA%E6%9D%A5%E7%AC%AC%E4%B8%80%E9%A1%B5%E7%9A%84%E5%8D%81%E6%9D%A1%E6%95%B0%E6%8D%AE">http://api.xxx.com/api/system/userLists?pageSzie=10&pageNum=1，意思很明确，就是调用了用户列表的接口，提取出来第一页的十条数据</a>。</p>
+<p>如果是POST型，POST请求包中添加json格式的数据：</p>
+<p>POST &#x2F;api&#x2F;system&#x2F;userLists HTTP&#x2F;1.1<br>Host: api.xxx.com<br>Content-Type: application&#x2F;json<br>User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;83.0.4103.116 Safari&#x2F;537.36</p>
+<p>Content-Length: 0 {“pageSize”10,”pageNum”:1}</p>
+<p>此次目标中，接口很多，拿其中一个接口举例子，接口地址为: <a target="_blank" rel="noopener" href="http://api.xxx.com/xxx-xxx-service/xxx/xxx/get%EF%BC%8C%E7%9C%8B%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E7%8C%9C%E6%B5%8B%E4%B8%BA%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%EF%BC%8C%E9%99%A4%E6%AD%A4%E4%B9%8B%E5%A4%96%E8%BF%98%E6%9C%89xxx-xxx-auth%E9%89%B4%E6%9D%83%E6%8E%A5%E5%8F%A3%E3%80%81xxx-xxx-token%E8%8E%B7%E5%8F%96token%E4%BF%A1%E6%81%AF%E6%8E%A5%E5%8F%A3">http://api.xxx.com/xxx-xxx-service/xxx/xxx/get，看接口命名猜测为服务接口，除此之外还有xxx-xxx-auth鉴权接口、xxx-xxx-token获取token信息接口</a>……</p>
+<h2 id="4-接口FUZZ"><a href="#4-接口FUZZ" class="headerlink" title="4.接口FUZZ"></a>4.接口FUZZ</h2><p>一百多个接口地址提取出来之后，尝试拼接在API接口访问路径下进行fuzz，API接口访问路径为：api.xxx.com，使用Burp进行fuzz，记得取消url编码。</p>
+<p><img src="https://secquan.zzyuncheng.com/001be87d97e5600e92d9f4d06652535c.png-quanzi" alt="file"></p>
+<p>Burp跑的结果均为401，接口也都做了鉴权，访问接口应该携带token进行鉴权才能获取到接口内容。</p>
+<p><img src="https://secquan.zzyuncheng.com/07560b28bb4158968f8b87ad36b8f3a1.png-quanzi" alt="file"></p>
+<p>将FindSometing提取出来的参数拼接到api路径后边，同样也是401。</p>
+<p>继续查找JS文件，在JS文件中最后一行发现了xxx.js.map……随即想到了用工具还原webpack打包的JS文件。</p>
+<p><img src="https://secquan.zzyuncheng.com/e14580f0ea521b1d63a39bbd69385e7b.png-quanzi" alt="file"></p>
+<p>直接在JS路径下拼接js.map文件下载下来，文件很大</p>
+<p><img src="https://secquan.zzyuncheng.com/73e9971fb19cac131cff92398c9c82ad.png-quanzi" alt="file"></p>
+<p>使用reverse-sourcemap将该文件还原，会在src目录下（可自定义目录）生成还原后的JS文件，有api目录、config目录、路由目录、css的样式目录……</p>
+<p>工具还原命令：reverse-sourcemap –output-dir src xxx.js.map</p>
+<p><img src="https://secquan.zzyuncheng.com/49f8172e9129f9d5e84f2c10cf0208d1.png-quanzi" alt="file"></p>
+<p><img src="https://secquan.zzyuncheng.com/f525906a88cc5bb2c97adf8aa07bafda.png-quanzi" alt="file"></p>
+<p>生成的目录以及JS文件太多了，直接找关键的api目录、config目录、utils目录等</p>
+<p>直接进入api文件夹中，查找接口JS文件，发现众多接口：</p>
+<p><img src="https://secquan.zzyuncheng.com/1a13b81d75b57749a0df264b407ee607.png-quanzi" alt="file"></p>
+<h2 id="5-敏感信息泄露"><a href="#5-敏感信息泄露" class="headerlink" title="5. 敏感信息泄露"></a>5. 敏感信息泄露</h2><p>继续利用获取到的众多接口文件以及接口信息不断fuzz，根据JS的文件名查找关键接口均无收获。响应基本都为401，很正常，因为需要携带正确合法的token才行。继续尝试fuzz</p>
+<p>终于，在users.js文件中发现了这样一条接口：api&#x2F; token&#x2F;auth?username&#x3D;，根据提示发现该接口是获取token的接口，将接口进行拼接，尝试访问，提示需要传入用户名参数，尝试admin用户进行接口访问：api&#x2F; token&#x2F;auth?username&#x3D;admin，成功获取到token值。</p>
+<p><img src="https://secquan.zzyuncheng.com/aef7eef54463d444493f400bd9a0881c.png-quanzi" alt="file"></p>
+<p>管理员的token值获取到了，可以对平台所有接口进行操作利用，任意增删改查，需要注意的是接口fuzz的过程中需要添加或修改参数，根据还原出来的JS文件中的接口参数进行利用，尝试获取敏感信息。</p>
+<p>此次还原出来的API文件夹下JS文件有700个左右，如何快速在700个文件中快速查找关键信息接口？</p>
+<p>第一：在JS文件中，会有接口参数提示以及接口功能提示：</p>
+<p><img src="https://secquan.zzyuncheng.com/85ec334ab38e11aa5b0ae02b19cd117f.png-quanzi" alt="file"></p>
+<p>第二：还原出来的JS文件的命名也可以帮助我们快速找到关键接口信息：</p>
+<p><img src="https://secquan.zzyuncheng.com/f26e63a221ae0dc0efa29457f117f191.png-quanzi" alt="file"></p>
+<p>接口获取百万+个人敏感信息：</p>
+<p><img src="https://secquan.zzyuncheng.com/ad0e3a26e6bb2d92d6ce3c2e22e06f50.png-quanzi" alt="file"></p>
+<p>PageNum和pageSize参数均为JS文件中提示的接口参数，也可以fuzz出来，除此之外，还有众多参数。</p>
+<p>在另外一个JS文件中获取到了个人购买信息接口，直接构造参数获取挺多的个人敏感信息：</p>
+<p><img src="https://secquan.zzyuncheng.com/ef4d08a72de2402ddfba41ebe77baf31.png-quanzi" alt="file"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" class="Popup" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer"  class="Popup" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">1.信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%9C%9F%E5%AE%9EIP"><span class="toc-number">2.</span> <span class="toc-text">2.真实IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%89%8D%E5%90%8E%E7%AB%AF%E5%88%86%E7%A6%BB"><span class="toc-number">3.</span> <span class="toc-text">3.前后端分离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8E%A5%E5%8F%A3FUZZ"><span class="toc-number">4.</span> <span class="toc-text">4.接口FUZZ</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">5.</span> <span class="toc-text">5. 敏感信息泄露</span></a></li></ol>
+    </div>
+
+    <div id="share-footer"  class="Popup" style="display: none">
+      <ul>
+  <li> 开发中. </li>
+  <!-- <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://huclilu.github.io/posts/undefined/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://huclilu.github.io/posts/undefined/&text=攻防演练之接口敏感信息泄露"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://huclilu.github.io/posts/undefined/&is_video=false&description=攻防演练之接口敏感信息泄露"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=攻防演练之接口敏感信息泄露&body=Check out this article: https://huclilu.github.io/posts/undefined/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://huclilu.github.io/posts/undefined/&title=攻防演练之接口敏感信息泄露"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://huclilu.github.io/posts/undefined/&name=攻防演练之接口敏感信息泄露&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://huclilu.github.io/posts/undefined/&t=攻防演练之接口敏感信息泄露"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li> -->
+
+</ul>
+
+    </div>
+
+   
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2020-2023
+    li1u
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+ 
+  <link
+    rel="preload"
+    href="/lib/font-awesome/css/all.min.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript
+    ><link
+      rel="stylesheet"
+      href="/lib/font-awesome/css/all.min.css"
+  /></noscript>
+
+
+    <!-- jquery -->
+ 
+  
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+
+
+
+<!-- clipboard -->
+
+   
+    
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+    console.log('1')
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+      setTimeout(()=>{
+        e.trigger.setAttribute('aria-label', "复制到粘贴板!");
+      },1500)
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+
+    <div class="img-pup" style="display: none;"> 
+      <img>
+    </div>
+<!-- 雪花特效2 -->
+
+  <script type="text/javascript" src="/js/snow.js"></script>
+
+</body>
+</html>
